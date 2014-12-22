@@ -6,46 +6,45 @@ library(rpart.plot)
 library(caret)
 library(randomForest)
 library(caTools)
-library(mice)
 library(gbm)
 
 
 #Read in the data
-train = read.csv("titanic_train.csv")
-test = read.csv("titanic_test.csv")
+train <- read.csv("titanic_train.csv")
+test <- read.csv("titanic_test.csv")
 
-train$Survived = as.factor(train$Survived)
+train$Survived <- as.factor(train$Survived)
 
 #Create new columns for ship section (first letter listed under cabin)
 #Most passengers don't have a cabin listed, but those that do tend to
 #Have higher survival rates
-train_ship_section = substr(train$Cabin, 1, 1)
-test_ship_section = substr(test$Cabin, 1, 1)
+train_ship_section <- substr(train$Cabin, 1, 1)
+test_ship_section <- substr(test$Cabin, 1, 1)
 
-train$section = as.factor(train_ship_section)
-test$section = as.factor(test_ship_section)
+train$section <- as.factor(train_ship_section)
+test$section <- as.factor(test_ship_section)
 
 #Split data into cases where age is listed and were age is NA
-train_age = subset(train, is.na(Age)==FALSE)
-train_no_age = subset(train, is.na(Age)==TRUE)
+train_age <- subset(train, is.na(Age)==FALSE)
+train_no_age <- subset(train, is.na(Age)==TRUE)
 
-test_age = subset(test, is.na(Age)==FALSE & is.na(Fare)==FALSE)
-test_no_age = subset(test, is.na(Age)==TRUE | is.na(Fare)==TRUE)
+test_age <- subset(test, is.na(Age)==FALSE & is.na(Fare)==FALSE)
+test_no_age <- subset(test, is.na(Age)==TRUE | is.na(Fare)==TRUE)
 
 
 #Basic random forest on entries with and without Age data--------------------------
 set.seed(121)
-basic_rf = randomForest(Survived~ Pclass+Sex+Age+SibSp+Parch+Fare+Embarked+section,data=train_age,ntree=15, nodesize= 4)
-rf_pred = predict(basic_rf, newdata=test_age)
+basic_rf <- randomForest(Survived~ Pclass+Sex+Age+SibSp+Parch+Fare+Embarked+section,data=train_age,ntree=15, nodesize= 4)
+rf_pred <- predict(basic_rf, newdata=test_age)
 
-basic_rf2 = randomForest(Survived~ Pclass+Sex+SibSp+Parch+Fare+Embarked+section,data=train_no_age,ntree=15, nodesize= 4)
-rf_pred2 = predict(basic_rf2, newdata=test_no_age)
+basic_rf2 <- randomForest(Survived~ Pclass+Sex+SibSp+Parch+Fare+Embarked+section,data=train_no_age,ntree=15, nodesize= 4)
+rf_pred2 <- predict(basic_rf2, newdata=test_no_age)
 
-age_pred_frame = data.frame(PassengerId= test_age$PassengerId , Survived=rf_pred)
+age_pred_frame <- data.frame(PassengerId= test_age$PassengerId , Survived=rf_pred)
 
-no_pred_frame = data.frame(PassengerId= test_no_age$PassengerId , Survived=rf_pred2)
+no_pred_frame <- data.frame(PassengerId= test_no_age$PassengerId , Survived=rf_pred2)
 
-submission5 = rbind(age_pred_frame , no_pred_frame)
+submission5 <- rbind(age_pred_frame , no_pred_frame)
   
 write.csv(submission5, "titanic_submission5.csv", row.names=FALSE)
 
