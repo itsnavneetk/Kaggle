@@ -1,3 +1,3 @@
 
-This repo contains R and python workspace files for select Kaggle competitions I've worked on. 
+This repo contains my code/work space for select Kaggle competitions.
 
